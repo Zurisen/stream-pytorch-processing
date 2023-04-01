@@ -8,13 +8,15 @@ model = load_maskrcnn()
 
 # Create an OpenCV video capture object to decode the frames from the stream
 #cap = cv2.VideoCapture(stream_url)
-cap = cv2.VideoCapture("vidroom.mp4")
+cap = cv2.VideoCapture("etc/vidroom2.mp4")
 
 # Define the codec and output format for the processed video
 fourcc = cv2.VideoWriter_fourcc(*"XVID")
 fps = 25.0
-width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+#width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+width = 540
+#height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+height = 960
 out = cv2.VideoWriter("output.avi", fourcc, fps, (width, height))
 
 # Create a VLC HTTP or RTP stream for the output video
@@ -27,20 +29,14 @@ out = cv2.VideoWriter("output.avi", fourcc, fps, (width, height))
 while cap.isOpened():
     # Read the next frame from the stream
     ret, frame = cap.read()
+    frame = cv2.flip(frame, 0)
     if not ret:
         break
-    
     # Process the frame with PyTorch
     result = feedforward(model, frame)
-    result_frame = PIL_to_cv2(result)
+    #result_frame = PIL_to_cv2(result)
     # Write the processed frame to the output video
-    out.write(result_frame)
-    
-    # Send the processed frame to the VLC stream
-    #cv2.imshow("Processed Frame", frame)
-    #if cv2.waitKey(1) & 0xFF == ord("q"):
-    #    break
-    #cv2.waitKey(1)
+    out.write(result)
 
 # Release the resources
 out.release()

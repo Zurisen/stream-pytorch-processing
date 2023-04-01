@@ -14,7 +14,7 @@ plt.rcParams["savefig.bbox"] = 'tight'
 
 def load_maskrcnn():
     # Define the COCO dataset and data loader
-    coco_dataset = torchvision.datasets.CocoDetection(root='samples/val2017/', annFile='samples/annotations/captions_val2017.json',
+    coco_dataset = torchvision.datasets.CocoDetection(root='etc/val2017/', annFile='etc/annotations/captions_val2017.json',
                                                       transform=transforms.ToTensor())
     coco_loader = DataLoader(coco_dataset, batch_size=1, shuffle=False)
 
@@ -25,31 +25,33 @@ def load_maskrcnn():
     model.eval()
     return model
 
-
 def feedforward(model, image):
-        # Convert the frame to a NumPy array
-        #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) # change color space if necessary
-        image = Image.fromarray(image)
-        image = image.resize((720, 480))
-        # Convert the NumPy array to a PyTorch tensor
-        image_tensor = torch.from_numpy([transforms.ToTensor()(image)]).unsqueeze(0)
-        prediction = model(image_tensor.float() / 255.0)
-        
-        # Convert the numpy array to uint8
-        image_np = torch.Tensor.cpu(transforms.ToTensor()(image)).numpy()
-        # Convert the numpy array to uint8
-        image_np_uint8 = (image_np * 255).astype('uint8')
-        result = draw_segmentation_masks(torch.from_numpy(image_np_uint8),
-                                         masks = prediction[0]['masks'].squeeze(1) > 0.5,
-                                         alpha=0.9)
-        
-        result = result.detach()
-        result = F.to_pil_image(result)
-        
-        return result
+    # Convert the frame to a NumPy array
+    #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) # change color space if necessary
+    image = Image.fromarray(image)
+    new_size = (int(image.size[0]/2), int(image.size[1]/2))
+    image = image.resize(new_size)
+    prediction = model([transforms.ToTensor()(image)])
+    indices = torch.nonzero(prediction[0]['scores'] > 0.90, as_tuple=False).squeeze(1)
     
     
-def PIL_to_cv2(image):    
-        # Convert the PIL image to a NumPy array in BGR format
-        output_np = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-        return output_np
+    
+    # Convert the tensor to a numpy array
+    image_np = torch.Tensor.cpu(transforms.ToTensor()(image)).numpy()
+    # Convert the numpy array to uint8
+    image_np_uint8 = (image_np * 255).astype('uint8')
+    result = draw_segmentation_masks(torch.from_numpy(image_np_uint8),
+                                     masks = prediction[0]['masks'][indices].squeeze(1) > 0.5,
+                                     alpha=0.9)
+
+    result = result.detach().cpu().numpy()
+    result = np.rollaxis(result, 0, 3)
+    #result = F.to_pil_image(result)
+
+    return result
+    
+    
+def PIL_to_cv2(image: np.array):    
+    # Convert the PIL image to a NumPy array in BGR format
+    output_np = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    return output_np
