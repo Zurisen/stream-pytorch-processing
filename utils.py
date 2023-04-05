@@ -11,7 +11,6 @@ import numpy as np
 import cv2
 plt.rcParams["savefig.bbox"] = 'tight'
 
-
 def detect_image(img, img_size=416):
     # scale and pad image
     ratio = min(img_size/img.size[0], img_size/img.size[1])
@@ -31,3 +30,4 @@ def detect_image(img, img_size=416):
         detections = model(image_tensor)
         #detections = utils.non_max_suppression(detections, 80, conf_thres, nms_thres)
     return detections
+
