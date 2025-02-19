@@ -9,3 +9,4 @@
 *.avi
 *__pycache__/*
 *.ipynb_checkpoints/*
+video.mp4

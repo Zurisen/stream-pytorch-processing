@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from utils import *
+from helpers import *
 
 # Connect to a live stream
 stream_url = "rtmp://192.168.25.1:8082/live"
