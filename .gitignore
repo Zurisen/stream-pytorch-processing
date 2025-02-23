@@ -10,3 +10,5 @@
 *__pycache__/*
 *.ipynb_checkpoints/*
 video.mp4
+etc/vidroom1.mp4
+pose_landmarker_heavy.task
