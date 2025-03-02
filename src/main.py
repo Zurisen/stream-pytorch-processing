@@ -70,12 +70,12 @@ def process_image(cv2_image, original_frame, bbox_location, options):
         # Load the input image from an image file.
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=cv2_image.astype(np.uint8))
         pose_landmarker_result = landmarker.detect(mp_image)
-        draw_landmarks(cv2_image, pose_landmarker_result.pose_landmarks[0])
-        angles_labels = calculate_angles(pose_landmarker_result.pose_landmarks[0])
-        for label, angle in angles_labels:
-            cv2.putText(original_frame, f"{label}: {angle:.2f}", (bbox_location[0], bbox_location[1]), cv2.FONT_HERSHEY_SIMPLEX, 
-                        2, (0, 255, 0), 10, cv2.LINE_AA)
-        #plt.imshow(cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB))
+        if len(pose_landmarker_result.pose_landmarks)>0:
+            draw_landmarks(cv2_image, pose_landmarker_result.pose_landmarks[0])
+            angles_labels = calculate_angles(pose_landmarker_result.pose_landmarks[0])
+            for label, angle in angles_labels:
+                cv2.putText(original_frame, f"{label}: {angle:.2f}", (bbox_location[0], bbox_location[1]), 
+                            cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 10, cv2.LINE_AA)
     
 
 def process_video(video_path, output_path, options, orientation=0):
@@ -119,7 +119,6 @@ def process_video(video_path, output_path, options, orientation=0):
                 # Save the bounding box region of the image in another variable
                 x1, y1, x2, y2 = map(int, filtered_boxes.xyxy[0])
                 bounding_box_region = frame[y1:y2, x1:x2]
-                print(x1,y1,x2,y2)
 
                 # Display the annotated frame
                 process_image(bounding_box_region, frame, (x1, y1, x2, y2), options)
@@ -131,7 +130,6 @@ def process_video(video_path, output_path, options, orientation=0):
 
             # Write the frame to the video
             out.write(frame)
-            print("Frame processed")
             
 if __name__ == "__main__":
     process_video("../etc/vidroom1.mp4", "../result", options, orientation=3)
