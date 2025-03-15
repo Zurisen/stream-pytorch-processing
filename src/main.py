@@ -10,10 +10,10 @@ import torch
 ######################################################
 
 ## YOLOv11 options
-model = YOLO("../models/yolo11n.pt")
+model = YOLO("./models/yolo11n.pt")
 
 ## Mediapipe Pose options
-model_path = '../models/pose_landmarker_heavy.task'
+model_path = './models/pose_landmarker_heavy.task'
 BaseOptions = mp.tasks.BaseOptions
 PoseLandmarker = mp.tasks.vision.PoseLandmarker
 PoseLandmarkerOptions = mp.tasks.vision.PoseLandmarkerOptions
@@ -132,4 +132,4 @@ def process_video(video_path, output_path, options, orientation=0):
             out.write(frame)
             
 if __name__ == "__main__":
-    process_video("../etc/vidroom1.mp4", "../result", options, orientation=3)
+    process_video("./etc/vidroom1.mp4", "./result", options, orientation=3)
